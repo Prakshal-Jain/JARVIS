@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClient } from "@/lib/supabase"
 import {
   Glasses,
   Watch,
@@ -97,6 +97,7 @@ export default function WaitlistPage() {
     setError("")
 
     try {
+      const supabase = getSupabaseClient()
       const { error: supabaseError } = await supabase
         .from('waitlist')
         .insert([{
