@@ -124,6 +124,7 @@ export default function WaitlistPage() {
       setIsDeveloper(false)
       setIsJustExploring(false)
     } catch (err) {
+      console.error('Waitlist submission error:', err)
       setError('Failed to connect. Please check your internet connection.')
     } finally {
       setLoading(false)
