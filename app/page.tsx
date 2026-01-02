@@ -6,6 +6,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { supabase } from "@/lib/supabase"
 import {
   Glasses,
   Watch,
@@ -27,6 +28,7 @@ export default function WaitlistPage() {
   const [isJustExploring, setIsJustExploring] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
   const [showTooltip, setShowTooltip] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
@@ -92,16 +94,40 @@ export default function WaitlistPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setError("")
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const { error: supabaseError } = await supabase
+        .from('waitlist')
+        .insert([{
+          email: email.toLowerCase().trim(),
+          is_enterprise: isEnterprise,
+          is_developer: isDeveloper,
+          is_just_exploring: isJustExploring,
+        }])
 
-    setSubmitted(true)
-    setLoading(false)
-    setEmail("")
-    setIsEnterprise(false)
-    setIsDeveloper(false)
-    setIsJustExploring(false)
+      if (supabaseError) {
+        // Handle duplicate email (unique constraint violation)
+        if (supabaseError.code === '23505') {
+          setError('This email is already on the waitlist!')
+        } else {
+          console.error('Supabase error:', supabaseError)
+          setError('Failed to join waitlist. Please try again.')
+        }
+        setLoading(false)
+        return
+      }
+
+      setSubmitted(true)
+      setEmail("")
+      setIsEnterprise(false)
+      setIsDeveloper(false)
+      setIsJustExploring(false)
+    } catch (err) {
+      setError('Failed to connect. Please check your internet connection.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const wearables = [
@@ -161,7 +187,10 @@ export default function WaitlistPage() {
                     type="email"
                     placeholder="Enter your email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value)
+                      setError("")
+                    }}
                     required
                     className="flex-1 h-12 text-base"
                     disabled={loading}
@@ -170,6 +199,9 @@ export default function WaitlistPage() {
                     {loading ? "Joining..." : "Join Waitlist"}
                   </Button>
                 </div>
+                {error && (
+                  <p className="text-sm text-red-500 text-center">{error}</p>
+                )}
                 <div className="flex flex-wrap gap-4 justify-center">
                   <div className="flex items-center gap-2">
                     <Checkbox
