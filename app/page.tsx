@@ -6,7 +6,6 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { getSupabaseClient } from "@/lib/supabase"
 import {
   Glasses,
   Watch,
@@ -20,6 +19,7 @@ import {
   ArrowRight,
   CheckCircle,
 } from "lucide-react"
+import { submitWaitlistEntry } from "@/lib/supabase"
 
 export default function WaitlistPage() {
   const [email, setEmail] = useState("")
@@ -28,7 +28,7 @@ export default function WaitlistPage() {
   const [isJustExploring, setIsJustExploring] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [error, setError] = useState<string | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
@@ -94,39 +94,29 @@ export default function WaitlistPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError("")
+    setError(null)
 
     try {
-      const supabase = getSupabaseClient()
-      const { error: supabaseError } = await supabase
-        .from('waitlist')
-        .insert([{
-          email: email.toLowerCase().trim(),
-          is_enterprise: isEnterprise,
-          is_developer: isDeveloper,
-          is_just_exploring: isJustExploring,
-        }])
-
-      if (supabaseError) {
-        // Handle duplicate email (unique constraint violation)
-        if (supabaseError.code === '23505') {
-          setError('This email is already on the waitlist!')
-        } else {
-          console.error('Supabase error:', supabaseError)
-          setError('Failed to join waitlist. Please try again.')
-        }
-        setLoading(false)
-        return
-      }
+      await submitWaitlistEntry({
+        email: email.trim(),
+        is_enterprise: isEnterprise,
+        is_developer: isDeveloper,
+        is_just_exploring: isJustExploring,
+      })
 
       setSubmitted(true)
       setEmail("")
       setIsEnterprise(false)
       setIsDeveloper(false)
       setIsJustExploring(false)
-    } catch (err) {
-      console.error('Waitlist submission error:', err)
-      setError('Failed to connect. Please check your internet connection.')
+    } catch (err: any) {
+      console.error("Error submitting to waitlist:", err)
+      // Check if it's a duplicate entry error
+      if (err?.code === "23505" || err?.message?.includes("duplicate")) {
+        setError("This email is already on the waitlist.")
+      } else {
+        setError("Something went wrong. Please try again later.")
+      }
     } finally {
       setLoading(false)
     }
@@ -184,6 +174,11 @@ export default function WaitlistPage() {
           <div id="waitlist-section" className="max-w-md mx-auto space-y-6">
             {!submitted ? (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                  <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md border border-destructive/20">
+                    {error}
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <Input
                     type="email"
@@ -191,7 +186,7 @@ export default function WaitlistPage() {
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value)
-                      setError("")
+                      setError(null)
                     }}
                     required
                     className="flex-1 h-12 text-base"
@@ -201,9 +196,6 @@ export default function WaitlistPage() {
                     {loading ? "Joining..." : "Join Waitlist"}
                   </Button>
                 </div>
-                {error && (
-                  <p className="text-sm text-red-500 text-center">{error}</p>
-                )}
                 <div className="flex flex-wrap gap-4 justify-center">
                   <div className="flex items-center gap-2">
                     <Checkbox
