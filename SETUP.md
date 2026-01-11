@@ -73,3 +73,4 @@ After deployment, test the form on your live site. You should see entries appear
 - **Duplicate email error?** This is expected - the database prevents duplicate emails
 - **Build fails on GitHub?** Make sure secrets are set correctly in repository settings
 
+

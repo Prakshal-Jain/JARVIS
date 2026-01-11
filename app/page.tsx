@@ -29,7 +29,8 @@ export default function WaitlistPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [showTooltip, setShowTooltip] = useState(false)
+  const [showAtomicTooltip, setShowAtomicTooltip] = useState(false)
+  const [showComplexTooltip, setShowComplexTooltip] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
 
@@ -152,9 +153,9 @@ export default function WaitlistPage() {
         <div className="w-full max-w-3xl mx-auto text-center space-y-16">
           {/* Header */}
           <div className="space-y-6">
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-balance">The OS for AI Wearables</h1>
+            <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-balance">The Orchestration Framework for AI Wearables & Phones</h1>
             <p className="text-xl md:text-2xl text-muted-foreground text-balance leading-relaxed max-w-2xl mx-auto">
-              Desktop-grade execution and persistent memory for glasses, earbuds, and AI wearables.
+              Desktop-grade execution and persistent memory for glasses, earbuds, and AI wearables and phones.
             </p>
           </div>
 
@@ -360,12 +361,12 @@ export default function WaitlistPage() {
               enabling{" "}
               <span
                 className="underline decoration-2 underline-offset-4 cursor-pointer relative"
-                onMouseEnter={() => setShowTooltip(true)}
-                onMouseLeave={() => setShowTooltip(false)}
-                onClick={() => setShowTooltip(!showTooltip)}
+                onMouseEnter={() => setShowAtomicTooltip(true)}
+                onMouseLeave={() => setShowAtomicTooltip(false)}
+                onClick={() => setShowAtomicTooltip(!showAtomicTooltip)}
               >
                 atomic
-                {showTooltip && (
+                {showAtomicTooltip && (
                   <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-80 bg-popover text-popover-foreground border rounded-lg p-4 text-sm text-left shadow-lg z-10">
                     <strong>Atomic</strong> tasks are single, isolated actions an AI can perform immediately (e.g.,
                     "take a photo" or "set a timer"), while <strong>complex</strong> tasks are goal-driven workflows
@@ -377,12 +378,12 @@ export default function WaitlistPage() {
               and{" "}
               <span
                 className="underline decoration-2 underline-offset-4 cursor-pointer relative"
-                onMouseEnter={() => setShowTooltip(true)}
-                onMouseLeave={() => setShowTooltip(false)}
-                onClick={() => setShowTooltip(!showTooltip)}
+                onMouseEnter={() => setShowComplexTooltip(true)}
+                onMouseLeave={() => setShowComplexTooltip(false)}
+                onClick={() => setShowComplexTooltip(!showComplexTooltip)}
               >
                 complex
-                {showTooltip && (
+                {showComplexTooltip && (
                   <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-80 bg-popover text-popover-foreground border rounded-lg p-4 text-sm text-left shadow-lg z-10">
                     <strong>Atomic</strong> tasks are single, isolated actions an AI can perform immediately (e.g.,
                     "take a photo" or "set a timer"), while <strong>complex</strong> tasks are goal-driven workflows

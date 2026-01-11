@@ -66,3 +66,4 @@ The waitlist table stores:
 - **Tailwind CSS** - Styling
 - **GitHub Pages** - Hosting
 
+
